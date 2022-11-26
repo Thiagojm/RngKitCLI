@@ -13,56 +13,58 @@ from serial.tools import list_ports
 # Internal imports
 
 
-rng_com_port = None
 
-# Call list_ports to get com port info
-ports_avaiable = list_ports.comports()
+def find_rng():
+    rng_com_port = None
 
-# Loop on all available ports to find TrueRNG
-print('Com Port List')
-for temp in ports_avaiable:
- #   print(temp[1] + ' : ' + temp[2])
-    if '04D8:F5FE' in temp[2]:
-        print('Found TrueRNG on ' + temp[0])
-        if rng_com_port == None:        # always chooses the 1st TrueRNG found
-            rng_com_port=temp[0]
-    if '16D0:0AA0' in temp[2]:
-        print('Found TrueRNGpro on ' + temp[0])
-        if rng_com_port == None:        # always chooses the 1st TrueRNG found
-            rng_com_port=temp[0]
-    if '04D8:EBB5' in temp[2]:
-        print('Found TrueRNGproV2 on ' + temp[0])
-        if rng_com_port == None:        # always chooses the 1st TrueRNG found
-            rng_com_port=temp[0]
+    # Call list_ports to get com port info
+    ports_avaiable = list_ports.comports()
 
-print('==================================================')
+    print("Searching for RNG device...\n")
+    for temp in ports_avaiable:
+    #   print(temp[1] + ' : ' + temp[2])
+        if '04D8:F5FE' in temp[2]:
+            print('Found TrueRNG on ' + temp[0], "\n")
+            if rng_com_port == None:        # always chooses the 1st TrueRNG found
+                rng_com_port=temp[0]
+        if '16D0:0AA0' in temp[2]:
+            print('Found TrueRNGpro on ' + temp[0], "\n")
+            if rng_com_port == None:        # always chooses the 1st TrueRNG found
+                rng_com_port=temp[0]
+        if '04D8:EBB5' in temp[2]:
+            print('Found TrueRNGproV2 on ' + temp[0], "\n")
+            if rng_com_port == None:        # always chooses the 1st TrueRNG found
+                rng_com_port=temp[0]
+    if rng_com_port == None:
+        print('No TrueRNG found. Try again.')
+    return rng_com_port
 
-# Print which port we're using
-print('Using com port:  ' + str(rng_com_port))
 
-# Try to setup and open the comport
-try:
-    ser = serial.Serial(port=rng_com_port,timeout=10)  # timeout set at 10 seconds in case the read fails
-except:
-    print('Port Not Usable!')
-    print('Do you have permissions set to read ' + rng_com_port + ' ?')
-    
-    
-# Open the serial port if it isn't open
-if(ser.isOpen() == False):
-    ser.open()
+def start_serial(rng_com_port):
+    print('==================================================\n')
 
-# Set Data Terminal Ready to start flow
-ser.setDTR(True)
+    # Print which port we're using
+    print('Using com port:  ' + str(rng_com_port), "\n")
 
-# This clears the receive buffer so we aren't using buffered data
-ser.flushInput()
+    # Try to setup and open the comport
+    try:
+        ser = serial.Serial(port=rng_com_port,timeout=10)  # timeout set at 10 seconds in case the read fails
+    except:
+        print('Port Not Usable!')
+        print('Do you have permissions set to read ' + rng_com_port + ' ?')
+        
+        
+    # Open the serial port if it isn't open
+    if(ser.isOpen() == False):
+        ser.open()
 
-# Set bytes to read
-sample_value = 256
+    # Set Data Terminal Ready to start flow
+    ser.setDTR(True)
 
-# Set interval size in seconds
-interval_value = 1
+    # This clears the receive buffer so we aren't using buffered data
+    ser.flushInput()
+    return ser
+
 
 def trng3_cap(sample_value, interval_value, ser):
     # global thread_cap
@@ -103,5 +105,12 @@ def trng3_cap(sample_value, interval_value, ser):
         print("Keyboard Interrupt")
 
 if __name__ == "__main__":
-    print("Starting capture")
-    trng3_cap(sample_value, interval_value, ser)
+    rng_com_port = find_rng()
+    if rng_com_port != None:
+        # Set bits to read
+        sample_value = 2048
+        # Set interval size in seconds
+        interval_value = 1
+        ser = start_serial(rng_com_port)
+        print("Starting capture:", "\n")
+        trng3_cap(sample_value, interval_value, ser)
