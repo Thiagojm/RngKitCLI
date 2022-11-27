@@ -2,6 +2,7 @@
 
 # Default imports
 import time
+time.sleep(30)
 from time import localtime, strftime
 import os
 import serial
@@ -116,7 +117,6 @@ if __name__ == "__main__":
         f"{Fore.CYAN}Hello, Welcome to the RngKitCLI Auto Start - {Fore.YELLOW}ver 0.1 - {Fore.GREEN}by Thiago Jung"
     )
     print("\n", f"{Fore.MAGENTA}#" * 29, "\n")
-    time.sleep(30)
     rng_com_port = find_rng()
     if rng_com_port != None:
         sample_value, interval_value = 2048, 1
