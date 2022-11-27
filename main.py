@@ -2,22 +2,21 @@
 import time
 from time import localtime, strftime
 import os
+import serial
+from serial.tools import list_ports
 
 
 # External imports
 
 from bitstring import BitArray
-import serial
-from serial.tools import list_ports
 import questionary as qs
 from colorama import init
 
 init(autoreset=True)
 
 from colorama import Fore, Back
+
 # Internal imports
-
-
 
 def find_rng():
     rng_com_port = None
@@ -29,19 +28,19 @@ def find_rng():
     for temp in ports_avaiable:
     #   print(temp[1] + ' : ' + temp[2])
         if '04D8:F5FE' in temp[2]:
-            print('Found TrueRNG on ' + temp[0], "\n")
+            print(f'{Fore.BLUE}Found TrueRNG on {temp[0]} \n')
             if rng_com_port == None:        # always chooses the 1st TrueRNG found
                 rng_com_port=temp[0]
         if '16D0:0AA0' in temp[2]:
-            print('Found TrueRNGpro on ' + temp[0], "\n")
+            print(f'{Fore.BLUE}Found TrueRNGPro on {temp[0]} \n')
             if rng_com_port == None:        # always chooses the 1st TrueRNG found
                 rng_com_port=temp[0]
         if '04D8:EBB5' in temp[2]:
-            print('Found TrueRNGproV2 on ' + temp[0], "\n")
+            print(f'{Fore.BLUE}Found TrueRNGoroV2 on {temp[0]} \n')
             if rng_com_port == None:        # always chooses the 1st TrueRNG found
                 rng_com_port=temp[0]
     if rng_com_port == None:
-        print('No TrueRNG found. Try again.')
+        print(f'{Fore.RED}No TrueRNG found. Attach it and try again.\n')
     return rng_com_port
 
 
@@ -49,16 +48,11 @@ def start_serial(rng_com_port):
     print('==================================================\n')
 
     # Print which port we're using
-    print('Using com port:  ' + str(rng_com_port), "\n")
+    print(f'{Back.CYAN}Using com port:  ' + str(rng_com_port), "\n")
 
     # Try to setup and open the comport
-    try:
-        ser = serial.Serial(port=rng_com_port,timeout=10)  # timeout set at 10 seconds in case the read fails
-    except:
-        print('Port Not Usable!')
-        print('Do you have permissions set to read ' + rng_com_port + ' ?')
-        
-        
+    ser = serial.Serial(port=rng_com_port, timeout=10)  # timeout set at 10 seconds in case the read fails
+            
     # Open the serial port if it isn't open
     if(ser.isOpen() == False):
         ser.open()
@@ -72,12 +66,12 @@ def start_serial(rng_com_port):
 
 
 def trng3_cap(sample_value, interval_value, ser):
-    # global thread_cap
     blocksize = int(sample_value / 8)
     file_name = time.strftime(
         f"%Y%m%d-%H%M%S_trng_s{sample_value}_i{interval_value}")
     file_name = f"1-SavedFiles/{file_name}"
     num_loop = 1
+    print(f"{Back.GREEN}Starting capture:", "\n")
     try:
         while True:
             print("Collecting data - Loop: ", num_loop)
@@ -108,6 +102,15 @@ def trng3_cap(sample_value, interval_value, ser):
         if os.name == 'posix':
             os.system('stty -F '+rng_com_port+' min 1')
         print("Keyboard Interrupt")
+        
+def ask_param():
+    sample_value = int(qs.text("What bit rate to use (default = 2048)?", default="2048").ask())
+    while sample_value % 8 != 0:
+        print(f"{Back.RED}Bit rate must be a multiple of 8")
+        sample_value = int(qs.text("What bit rate to use (default = 2048)?", default="2048").ask())
+    interval_value = int(qs.text("What interval to use in seconds (default = 1)?", default="1").ask())
+    print(f"{Back.CYAN}Using bit rate of {sample_value} bits each {interval_value} seconds")
+    return sample_value, interval_value
 
 if __name__ == "__main__":
     print("\n", f"{Fore.MAGENTA}#" * 29, "\n")
@@ -115,22 +118,8 @@ if __name__ == "__main__":
         f"{Fore.CYAN}Hello, Welcome to the RngKitCLI - {Fore.YELLOW}ver 0.1 - {Fore.GREEN}by Thiago Jung"
     )
     print("\n", f"{Fore.MAGENTA}#" * 29, "\n")
-    first_name = qs.text("What's your first name").ask()
-    choice = qs.select(
-    "What do you want to do?",
-    choices=[
-        "Order a pizza",
-        "Make a reservation",
-        "Ask for opening hours"
-    ]).ask()
-    print(f"{Fore.CYAN}Hello, {first_name}!")
-    print(f"{Fore.CYAN} {first_name}, you selected to {choice}")
     rng_com_port = find_rng()
     if rng_com_port != None:
-        # Set bits to read
-        sample_value = 2048
-        # Set interval size in seconds
-        interval_value = 1
+        sample_value, interval_value = ask_param()
         ser = start_serial(rng_com_port)
-        print("Starting capture:", "\n")
         trng3_cap(sample_value, interval_value, ser)
