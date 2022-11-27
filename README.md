@@ -1,6 +1,6 @@
 # RngKitCLI 0.1
 by Thiago Jung  
-https://github.com/Thiagojm/RngKitCLI 
+https://github.com/Thiagojm/RngKitCLI   
 thiagojm1984@hotmail.com   
 Written in Python 3.11
 -----------------------
