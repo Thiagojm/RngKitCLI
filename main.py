@@ -71,7 +71,8 @@ def trng3_cap(sample_value, interval_value, ser):
     blocksize = int(sample_value / 8)
     file_name = time.strftime(
         f"%Y%m%d-%H%M%S_trng_s{sample_value}_i{interval_value}")
-    file_name = f"1-SavedFiles/{file_name}"
+    file_path = os.path.abspath(os.path.dirname(__file__))
+    file_name = f"{file_path}/1-SavedFiles/{file_name}"
     num_loop = 1
     total_bytes = 0
     print(f"{Fore.GREEN}Starting capture:\n")
