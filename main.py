@@ -14,7 +14,7 @@ from colorama import init
 
 init(autoreset=True)
 
-from colorama import Fore, Back
+from colorama import Fore
 
 # Internal imports
 
@@ -28,15 +28,15 @@ def find_rng():
     for temp in ports_avaiable:
     #   print(temp[1] + ' : ' + temp[2])
         if '04D8:F5FE' in temp[2]:
-            print(f'{Fore.BLUE}Found TrueRNG on {temp[0]} \n')
+            print(f'{Fore.CYAN}Found TrueRNG on {temp[0]} \n')
             if rng_com_port == None:        # always chooses the 1st TrueRNG found
                 rng_com_port=temp[0]
         if '16D0:0AA0' in temp[2]:
-            print(f'{Fore.BLUE}Found TrueRNGPro on {temp[0]} \n')
+            print(f'{Fore.CYAN}Found TrueRNGPro on {temp[0]} \n')
             if rng_com_port == None:        # always chooses the 1st TrueRNG found
                 rng_com_port=temp[0]
         if '04D8:EBB5' in temp[2]:
-            print(f'{Fore.BLUE}Found TrueRNGoroV2 on {temp[0]} \n')
+            print(f'{Fore.CYAN}Found TrueRNGoroV2 on {temp[0]} \n')
             if rng_com_port == None:        # always chooses the 1st TrueRNG found
                 rng_com_port=temp[0]
     if rng_com_port == None:
@@ -48,7 +48,7 @@ def start_serial(rng_com_port):
     print('==================================================\n')
 
     # Print which port we're using
-    print(f'{Back.CYAN}Using com port:  ' + str(rng_com_port), "\n")
+    print(f'{Fore.CYAN}Using com port:  ' + str(rng_com_port), "\n")
 
     # Try to setup and open the comport
     ser = serial.Serial(port=rng_com_port, timeout=10)  # timeout set at 10 seconds in case the read fails
@@ -71,7 +71,7 @@ def trng3_cap(sample_value, interval_value, ser):
         f"%Y%m%d-%H%M%S_trng_s{sample_value}_i{interval_value}")
     file_name = f"1-SavedFiles/{file_name}"
     num_loop = 1
-    print(f"{Back.GREEN}Starting capture:", "\n")
+    print(f"{Fore.GREEN}Starting capture:", "\n")
     try:
         while True:
             print("Collecting data - Loop: ", num_loop)
@@ -106,10 +106,10 @@ def trng3_cap(sample_value, interval_value, ser):
 def ask_param():
     sample_value = int(qs.text("What bit rate to use (default = 2048)?", default="2048").ask())
     while sample_value % 8 != 0:
-        print(f"{Back.RED}Bit rate must be a multiple of 8")
+        print(f"{Fore.RED}Bit rate must be a multiple of 8")
         sample_value = int(qs.text("What bit rate to use (default = 2048)?", default="2048").ask())
     interval_value = int(qs.text("What interval to use in seconds (default = 1)?", default="1").ask())
-    print(f"{Back.CYAN}Using bit rate of {sample_value} bits each {interval_value} seconds")
+    print(f"{Fore.CYAN}Using bit rate of {sample_value} bits each {interval_value} seconds")
     return sample_value, interval_value
 
 if __name__ == "__main__":
