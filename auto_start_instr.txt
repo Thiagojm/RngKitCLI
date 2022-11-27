@@ -4,12 +4,10 @@ if so you need to use the " /etc/xdg/lxsession/LXDE-pi/autostart " file to run t
 
 so open the file with the following command
 
-Code: Select all
 
 sudo nano /etc/xdg/lxsession/LXDE-pi/autostart
 
 and add as the last line the following, were " /home/pi/your_script.py " is the path and file name of your python program
 
-Code: Select all
 
 @lxterminal -e python3 /home/pi/your_script.py
