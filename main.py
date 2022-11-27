@@ -71,10 +71,13 @@ def trng3_cap(sample_value, interval_value, ser):
         f"%Y%m%d-%H%M%S_trng_s{sample_value}_i{interval_value}")
     file_name = f"1-SavedFiles/{file_name}"
     num_loop = 1
+    total_bytes = 0
     print(f"{Fore.GREEN}Starting capture:", "\n")
     try:
         while True:
-            print("Collecting data - Loop: ", num_loop)
+            total_bytes += blocksize
+            print(f"{Fore.CYAN}Collecting data - Loop: {num_loop} - Total bytes collected: {total_bytes}")
+            total_bytes += blocksize
             start_cap = time.time()
             with open(file_name + '.bin', "ab") as bin_file:  # save binary file
                 try:
@@ -109,7 +112,7 @@ def ask_param():
         print(f"{Fore.RED}Bit rate must be a multiple of 8")
         sample_value = int(qs.text("What bit rate to use (default = 2048)?", default="2048").ask())
     interval_value = int(qs.text("What interval to use in seconds (default = 1)?", default="1").ask())
-    print(f"{Fore.CYAN}Using bit rate of {sample_value} bits each {interval_value} seconds")
+    print(f"{Fore.CYAN}Using bit rate of {sample_value} bits each {interval_value} seconds\n")
     return sample_value, interval_value
 
 if __name__ == "__main__":
