@@ -1,3 +1,5 @@
+# lxterminal -e python3 main.py
+
 # Default imports
 import time
 from time import localtime, strftime
