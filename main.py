@@ -9,7 +9,12 @@ import os
 from bitstring import BitArray
 import serial
 from serial.tools import list_ports
+import questionary as qs
+from colorama import init
 
+init(autoreset=True)
+
+from colorama import Fore, Back
 # Internal imports
 
 
@@ -105,6 +110,21 @@ def trng3_cap(sample_value, interval_value, ser):
         print("Keyboard Interrupt")
 
 if __name__ == "__main__":
+    print("\n", f"{Fore.MAGENTA}#" * 29, "\n")
+    print(
+        f"{Fore.CYAN}Hello, Welcome to the RngKitCLI - {Fore.YELLOW}ver 0.1 - {Fore.GREEN}by Thiago Jung"
+    )
+    print("\n", f"{Fore.MAGENTA}#" * 29, "\n")
+    first_name = qs.text("What's your first name").ask()
+    choice = qs.select(
+    "What do you want to do?",
+    choices=[
+        "Order a pizza",
+        "Make a reservation",
+        "Ask for opening hours"
+    ]).ask()
+    print(f"{Fore.CYAN}Hello, {first_name}!")
+    print(f"{Fore.CYAN} {first_name}, you selected to {choice}")
     rng_com_port = find_rng()
     if rng_com_port != None:
         # Set bits to read
