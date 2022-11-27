@@ -72,7 +72,8 @@ def trng3_cap(sample_value, interval_value, ser):
     file_name = f"1-SavedFiles/{file_name}"
     num_loop = 1
     total_bytes = 0
-    print(f"{Fore.GREEN}Starting capture:", "\n")
+    print(f"{Fore.GREEN}Starting capture:\n")
+    print(f"{Fore.YELLOW}Saving to file {file_name}\n")
     try:
         while True:
             total_bytes += blocksize
@@ -104,7 +105,8 @@ def trng3_cap(sample_value, interval_value, ser):
         ser.close()
         if os.name == 'posix':
             os.system('stty -F '+rng_com_port+' min 1')
-        print("Keyboard Interrupt")
+        print(f"{Fore.YELLOW} Capture stopped by user, closing serial port and exiting")
+        print(f"{Fore.GREEN}Total bytes collected: {total_bytes}, saved to {file_name}")
         
 def ask_param():
     sample_value = int(qs.text("What bit rate to use (default = 2048)?", default="2048").ask())
