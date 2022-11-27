@@ -80,8 +80,7 @@ def trng3_cap(sample_value, interval_value, ser):
     try:
         while True:
             total_bytes += blocksize
-            print(f"{Fore.CYAN}Collecting data - Loop: {num_loop} - Total bytes collected: {total_bytes}")
-            total_bytes += blocksize
+            print(f"{Fore.CYAN}Collecting data - Loop: {num_loop} - Total bytes collected: {total_bytes}")            
             start_cap = time.time()
             with open(file_name + '.bin', "ab") as bin_file:  # save binary file
                 try:
