@@ -1,3 +1,20 @@
+mkdir /home/pi/.config/autostart
+nano /home/pi/.config/autostart/rng.desktop
+
+[Desktop Entry]
+Type=Application
+Name=RNG
+Exec=xterm -hold -e '/usr/bin/python3 /home/pi/Desktop/RngKitCLI/rng_boot.py'
+
+or 
+
+[Desktop Entry]
+Type=Application
+Name=RNG
+Exec=xterm -hold -e 'cd /home/pi/Desktop/go_rng/ && go run .'
+
+#####################
+
 Create a .desktop File
 
 You do not need root-level access to modify your profile's (user's) autostart and .desktop files. In fact, it is recommended that you do not use sudo, as you may affect the permissions of the file (e.g. the file would be owned by root) and make them unable to be executed by autostart (which has user-level permissions).
