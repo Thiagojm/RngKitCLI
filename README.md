@@ -7,9 +7,10 @@ Written in Python 3.11
 
 # ABSTRACT
 
-This application a types of TRNG - True Random Number Generator (TrueRNG) for data collection and statistical analysis for several purposes, including mind-matter interaction research.  
-It uses random number generation to collect and count the number of times the '1' bit appears in a series of user-defined size and interval.
-Afterwards, the data can be analyzed and compared with the number expected by chance (50%) and create a chart with a cumulative Z-Score.
+This application uses a type of TRNG - True Random Number Generator (TrueRNG) for data collection and statistical analysis for several purposes, including mind-matter interaction research. If you don't have the device, you can use the application to generate pseudo-random numbers aswell.
+It uses random numbers to collect and count the number of times the '1' bit appears in a series of user-defined size and interval. It will save the data in two files in the "1-Saved Files" directory as the application, one with a .csv extension and the other with a .bin extension (raw data to serve as control).
+
+Afterwards, the data can be analyzed and compared with the number expected by chance (50%) and create a chart with a cumulative Z-Score. For that please use the RngKitPSG application at https://github.com/Thiagojm/RngKitPSG.
 
 
 # Supported Hardware:
