@@ -6,6 +6,7 @@ from time import localtime, strftime
 import os
 import serial
 from serial.tools import list_ports
+import secrets
 
 
 # External imports
@@ -42,7 +43,8 @@ def find_rng():
             if rng_com_port == None:        # always chooses the 1st TrueRNG found
                 rng_com_port=temp[0]
     if rng_com_port == None:
-        print(f'{Fore.RED}No TrueRNG found. Attach it and try again.\n')
+        print(f'{Fore.RED}No TrueRNG found. Starting PseudoRNG.\n')
+        
     return rng_com_port
 
 
@@ -65,6 +67,47 @@ def start_serial(rng_com_port):
     # This clears the receive buffer so we aren't using buffered data
     ser.flushInput()
     return ser
+
+def pseudo_cap(sample_value, interval_value):
+    blocksize = int(sample_value / 8)
+    file_name = time.strftime(
+        f"%Y%m%d-%H%M%S_pseudo_s{sample_value}_i{interval_value}")
+    file_path = os.path.abspath(os.path.dirname(__file__))
+    file_name = f"{file_path}/1-SavedFiles/{file_name}"
+    num_loop = 1
+    total_bytes = 0
+    print(f"{Fore.GREEN}Starting capture:\n")
+    print(f"{Fore.YELLOW}Saving to file {file_name}\n")
+    try:
+        while True:
+            total_bytes += blocksize
+            print(f"{Fore.CYAN}Collecting data - Loop: {num_loop} - Total bytes collected: {total_bytes}")            
+            start_cap = time.time()
+            with open(file_name + '.bin', "ab") as bin_file:  # save binary file
+                try:
+                    x = secrets.token_bytes(blocksize)  # read bytes from serial port
+                except Exception:
+                    print("Error reading from serial port")
+                    break
+                bin_file.write(x)
+            bin_hex = BitArray(x)  # bin to hex
+            bin_ascii = bin_hex.bin  # hex to ASCII
+            # count numbers of ones in the string
+            num_ones_array = bin_ascii.count('1')
+            # open file and append time and number of ones
+            with open(file_name + '.csv', "a+") as write_file:
+                write_file.write(
+                    f'{strftime("%H:%M:%S", localtime())} {num_ones_array}\n')
+            end_cap = time.time()
+            num_loop += 1
+            # print(interval_value - (end_cap - start_cap))
+            try:
+                time.sleep(interval_value - (end_cap - start_cap))
+            except Exception:
+                pass
+    except KeyboardInterrupt:
+        print(f"{Fore.YELLOW} Capture stopped by user, closing and exiting...")
+        print(f"{Fore.GREEN}Total bytes collected: {total_bytes}, saved to {file_name}")
 
 
 def trng3_cap(sample_value, interval_value, ser):
@@ -107,7 +150,7 @@ def trng3_cap(sample_value, interval_value, ser):
         ser.close()
         if os.name == 'posix':
             os.system('stty -F '+rng_com_port+' min 1')
-        print(f"{Fore.YELLOW} Capture stopped by user, closing serial port and exiting")
+        print(f"{Fore.YELLOW} Capture stopped by user, closing serial port and exiting...")
         print(f"{Fore.GREEN}Total bytes collected: {total_bytes}, saved to {file_name}")
         
 def ask_param():
@@ -126,7 +169,9 @@ if __name__ == "__main__":
     )
     print("\n", f"{Fore.MAGENTA}#" * 29, "\n")
     rng_com_port = find_rng()
-    if rng_com_port != None:
-        sample_value, interval_value = ask_param()
+    sample_value, interval_value = ask_param()
+    if rng_com_port != None:        
         ser = start_serial(rng_com_port)
         trng3_cap(sample_value, interval_value, ser)
+    else:
+        pseudo_cap(sample_value, interval_value)
