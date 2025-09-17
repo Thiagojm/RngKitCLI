@@ -33,14 +33,14 @@ class DataAnalyzer:
         self.verbose = verbose
         self.data_dir = ensure_data_dir()
     
-    def analyze(self, file_path: str, bits: int, interval: int, 
+    def analyze(self, file_path: str, bits: Optional[int] = None, interval: Optional[int] = None, 
                 output_file: Optional[str] = None) -> str:
         """Analyze a data file and generate Excel report.
         
         Args:
             file_path: Path to input file (.csv or .bin)
-            bits: Number of bits per sample
-            interval: Sample interval in seconds
+            bits: Number of bits per sample (auto-detected from filename if None)
+            interval: Sample interval in seconds (auto-detected from filename if None)
             output_file: Output Excel filename (optional)
             
         Returns:
@@ -48,11 +48,38 @@ class DataAnalyzer:
             
         Raises:
             FileNotFoundError: If input file doesn't exist
-            ValueError: If parameters are invalid
+            ValueError: If parameters are invalid or cannot be auto-detected
             RuntimeError: If analysis fails
         """
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Input file not found: {file_path}")
+        
+        # Auto-detect parameters from filename if not provided
+        filename = os.path.basename(file_path)
+        try:
+            if bits is None:
+                if fn_service:
+                    bits = fn_service.parse_bits(filename)
+                else:
+                    # Fallback parsing
+                    import re
+                    m = re.search(r"_s(\d+)_", filename)
+                    if not m:
+                        raise ValueError("Cannot auto-detect bits from filename. Please specify manually.")
+                    bits = int(m.group(1))
+            
+            if interval is None:
+                if fn_service:
+                    interval = fn_service.parse_interval(filename)
+                else:
+                    # Fallback parsing
+                    import re
+                    m = re.search(r"_i(\d+)", filename)
+                    if not m:
+                        raise ValueError("Cannot auto-detect interval from filename. Please specify manually.")
+                    interval = int(m.group(1))
+        except Exception as e:
+            raise ValueError(f"Auto-detection failed: {e}")
         
         if bits <= 0 or (bits % 8) != 0:
             raise ValueError("Bits must be positive and divisible by 8")
@@ -117,21 +144,21 @@ class DataAnalyzer:
         except Exception as e:
             raise RuntimeError(f"Analysis failed: {str(e)}")
     
-    def concatenate(self, files: List[str], output_file: str, bits: int, interval: int) -> str:
+    def concatenate(self, files: List[str], output_file: str, bits: Optional[int] = None, interval: Optional[int] = None) -> str:
         """Concatenate multiple CSV files.
         
         Args:
             files: List of CSV file paths to concatenate
             output_file: Output CSV filename
-            bits: Number of bits per sample
-            interval: Sample interval in seconds
+            bits: Number of bits per sample (auto-detected from first filename if None)
+            interval: Sample interval in seconds (auto-detected from first filename if None)
             
         Returns:
             Path to concatenated CSV file
             
         Raises:
             FileNotFoundError: If any input file doesn't exist
-            ValueError: If parameters are invalid
+            ValueError: If parameters are invalid or cannot be auto-detected
             RuntimeError: If concatenation fails
         """
         if not files:
@@ -145,12 +172,52 @@ class DataAnalyzer:
             if not os.path.exists(file_path):
                 raise FileNotFoundError(f"Input file not found: {file_path}")
         
+        # Auto-detect parameters from first filename if not provided
+        if bits is None or interval is None:
+            first_filename = os.path.basename(files[0])
+            try:
+                if bits is None:
+                    if fn_service:
+                        bits = fn_service.parse_bits(first_filename)
+                    else:
+                        # Fallback parsing
+                        import re
+                        m = re.search(r"_s(\d+)_", first_filename)
+                        if not m:
+                            raise ValueError("Cannot auto-detect bits from filename. Please specify manually.")
+                        bits = int(m.group(1))
+                
+                if interval is None:
+                    if fn_service:
+                        interval = fn_service.parse_interval(first_filename)
+                    else:
+                        # Fallback parsing
+                        import re
+                        m = re.search(r"_i(\d+)", first_filename)
+                        if not m:
+                            raise ValueError("Cannot auto-detect interval from filename. Please specify manually.")
+                        interval = int(m.group(1))
+            except Exception as e:
+                raise ValueError(f"Auto-detection failed: {e}")
+        
+        if bits <= 0 or (bits % 8) != 0:
+            raise ValueError("Bits must be positive and divisible by 8")
+        
+        if interval <= 0:
+            raise ValueError("Interval must be positive")
+        
         if self.verbose:
             print(f"Concatenating {len(files)} files:")
             for file_path in files:
                 print(f"  - {file_path}")
+            print(f"Using parameters: {bits} bits, {interval}s interval")
         
         try:
+            # Generate output filename if not provided
+            if output_file is None:
+                timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+                output_file = f"{timestamp}_concat_s{bits}_i{interval}.csv"
+            
             # Generate output filename with timestamp
             if not os.path.isabs(output_file):
                 output_file = os.path.join(self.data_dir, output_file)

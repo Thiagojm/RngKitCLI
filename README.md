@@ -88,6 +88,10 @@
 
 4. **Analyze data**:
    ```bash
+   # Auto-detect parameters from filename (recommended)
+   python main.py analyze --file data/raw/20250917T140811_trng_s2048_i1.csv
+   
+   # Or specify manually if needed
    python main.py analyze --file data/raw/sample.csv --bits 2048 --interval 1
    ```
 
@@ -242,35 +246,83 @@ python main.py collect --device bitbabbler --bits 2048 --interval 1 --verbose
 #### Analyze CSV Files
 
 ```bash
-# Analyze a CSV file
+# Auto-detect parameters from filename (recommended)
+python main.py analyze --file data/raw/20250917T140811_trng_s2048_i1.csv
+
+# Auto-detect with custom output
+python main.py analyze --file data/raw/20250917T140811_trng_s2048_i1.csv --output analysis_report
+
+# Auto-detect with verbose output
+python main.py analyze --file data/raw/20250917T140811_trng_s2048_i1.csv --verbose
+
+# Manual override (when needed)
 python main.py analyze --file data/raw/sample.csv --bits 2048 --interval 1
 
-# Analyze with custom output
-python main.py analyze --file data/raw/sample.csv --bits 2048 --interval 1 --output analysis_report
-
-# Verbose analysis
-python main.py analyze --file data/raw/sample.csv --bits 2048 --interval 1 --verbose
+# Partial override (auto-detect interval, override bits)
+python main.py analyze --file data/raw/20250917T140811_trng_s2048_i1.csv --bits 1024
 ```
 
 #### Analyze Binary Files
 
 ```bash
-# Analyze a binary file
-python main.py analyze --file data/raw/sample.bin --bits 2048 --interval 1
+# Auto-detect parameters from filename (recommended)
+python main.py analyze --file data/raw/20250917T140811_trng_s2048_i1.bin
 
-# Analyze with custom output
-python main.py analyze --file data/raw/sample.bin --bits 2048 --interval 1 --output binary_analysis
+# Auto-detect with custom output
+python main.py analyze --file data/raw/20250917T140811_trng_s2048_i1.bin --output binary_analysis
+
+# Manual override (when needed)
+python main.py analyze --file data/raw/sample.bin --bits 2048 --interval 1
 ```
+
+#### Auto-Detection Feature
+
+The analyze command can automatically detect the sample size (bits) and interval from RngKit-generated filenames:
+
+- **Filename format**: `YYYYMMDDTHHMMSS_{device}_s{bits}_i{interval}[_f{folds}]`
+- **Examples**:
+  - `20250917T140811_trng_s2048_i1.csv` → auto-detects bits=2048, interval=1
+  - `20250917T140834_pseudo_s1024_i2.bin` → auto-detects bits=1024, interval=2
+  - `20250917T141124_concat_s2048_i1.csv` → auto-detects bits=2048, interval=1
+
+**Benefits:**
+- ✅ **Convenience**: No need to remember parameters
+- ⚡ **Speed**: Faster command execution
+- 🔒 **Reliability**: Reduces human error
+- 📁 **Compatibility**: Works with all RngKit-generated files
 
 ### 🔗 Data Concatenation
 
 ```bash
-# Concatenate multiple CSV files
-python main.py concat --files file1.csv file2.csv file3.csv --output combined --bits 2048 --interval 1
+# Auto-detect parameters and generate output filename (recommended)
+python main.py concat --files file1_s2048_i1.csv file2_s2048_i1.csv file3_s2048_i1.csv
 
-# Concatenate with verbose output
-python main.py concat --files *.csv --output all_data --bits 2048 --interval 1 --verbose
+# Auto-detect with custom output filename
+python main.py concat --files file1_s2048_i1.csv file2_s2048_i1.csv --output combined
+
+# Auto-detect with verbose output
+python main.py concat --files file1_s2048_i1.csv file2_s2048_i1.csv --verbose
+
+# Manual override (when needed)
+python main.py concat --files file1.csv file2.csv --output combined --bits 2048 --interval 1
+
+# Partial override (auto-detect interval, override bits)
+python main.py concat --files file1_s2048_i1.csv file2_s2048_i1.csv --bits 1024
 ```
+
+#### Concat Auto-Detection Feature
+
+The concat command can automatically detect parameters and generate output filenames:
+
+- **Parameter detection**: Uses the first filename to detect bits and interval
+- **Auto-generated output**: Creates timestamped filenames when `--output` is not specified
+- **Filename format**: `YYYYMMDDTHHMMSS_concat_s{bits}_i{interval}.csv`
+
+**Benefits:**
+- ✅ **Convenience**: No need to specify parameters or output filename
+- ⚡ **Speed**: Fastest possible command execution
+- 🔒 **Reliability**: Reduces human error
+- 📁 **Organization**: Timestamped files are easy to identify
 
 ### 🔍 Device Status
 
@@ -342,16 +394,16 @@ YYYYMMDDTHHMMSS_{device}_s{bits}_i{interval}[_f{folds}]
 #### Analyze Command
 
 - `--file, -f`: Input file to analyze (.csv or .bin)
-- `--bits, -b`: Number of bits per sample
-- `--interval, -i`: Sample interval in seconds (whole numbers only)
+- `--bits, -b`: Number of bits per sample (auto-detected from filename if not specified)
+- `--interval, -i`: Sample interval in seconds (auto-detected from filename if not specified)
 - `--output, -o`: Output Excel filename (default: auto-generated)
 
 #### Concat Command
 
 - `--files, -f`: CSV files to concatenate
-- `--output, -o`: Output CSV filename
-- `--bits, -b`: Number of bits per sample
-- `--interval, -i`: Sample interval in seconds (whole numbers only)
+- `--output, -o`: Output CSV filename (default: auto-generated with timestamp)
+- `--bits, -b`: Number of bits per sample (auto-detected from first filename if not specified)
+- `--interval, -i`: Sample interval in seconds (auto-detected from first filename if not specified)
 
 ---
 

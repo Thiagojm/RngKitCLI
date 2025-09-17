@@ -82,13 +82,11 @@ Examples:
                                required=True,
                                help='Input file to analyze (.csv or .bin)')
     analyze_parser.add_argument('--bits', '-b', 
-                               type=int, 
-                               required=True,
-                               help='Number of bits per sample')
+                              type=int, 
+                              help='Number of bits per sample (auto-detected from filename if not specified)')
     analyze_parser.add_argument('--interval', '-i', 
-                               type=int, 
-                               required=True,
-                               help='Sample interval in seconds')
+                              type=int, 
+                              help='Sample interval in seconds (auto-detected from filename if not specified)')
     analyze_parser.add_argument('--output', '-o', 
                                help='Output Excel filename (default: auto-generated)')
     analyze_parser.add_argument('--verbose', '-v', 
@@ -102,16 +100,13 @@ Examples:
                               required=True,
                               help='CSV files to concatenate')
     concat_parser.add_argument('--output', '-o', 
-                              required=True,
-                              help='Output CSV filename')
+                              help='Output CSV filename (default: auto-generated with timestamp)')
     concat_parser.add_argument('--bits', '-b', 
                               type=int, 
-                              required=True,
-                              help='Number of bits per sample')
+                              help='Number of bits per sample (auto-detected from first filename if not specified)')
     concat_parser.add_argument('--interval', '-i', 
                               type=int, 
-                              required=True,
-                              help='Sample interval in seconds')
+                              help='Sample interval in seconds (auto-detected from first filename if not specified)')
     concat_parser.add_argument('--verbose', '-v', 
                               action='store_true',
                               help='Enable verbose output')
