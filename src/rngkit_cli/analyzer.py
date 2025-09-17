@@ -239,12 +239,12 @@ class DataAnalyzer:
             print(f"✅ Concatenation completed successfully!")
             print(f"📄 Generated combined CSV: {concat_path}")
             print(f"🔗 Combined {len(files)} files with {bits}-bit samples")
+            print(f"📊 Input files processed:")
+            for i, file_path in enumerate(files, 1):
+                print(f"   {i}. {os.path.basename(file_path)}")
             
             if self.verbose:
                 print(f"📁 Full path: {os.path.abspath(concat_path)}")
-                print(f"📊 Input files processed:")
-                for i, file_path in enumerate(files, 1):
-                    print(f"   {i}. {os.path.basename(file_path)}")
             
             return concat_path
             
