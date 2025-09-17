@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rngkit-cli"
+version = "1.0.0"
+description = "Command Line Interface for Random Number Generator Data Collection and Analysis"
+readme = "README.md"
+requires-python = ">=3.13"
+license = {text = "MIT"}
+authors = [
+    {name = "Thiago Jung", email = "thiagojm1984@hotmail.com"}
+]
+keywords = ["random", "number", "generator", "trng", "bitbabbler", "truerng", "cryptography", "statistics", "cli"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Security :: Cryptography",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "bitstring>=4.0.0",
+    "pyserial>=3.5",
+    "pyusb>=1.2.1",
+    "xlsxwriter>=3.1.0",
+]
+
+[project.scripts]
+rngkit = "main:main"
+
+[project.urls]
+Homepage = "https://github.com/Thiagojm/RngKitCLI"
+Repository = "https://github.com/Thiagojm/RngKitCLI"
+Issues = "https://github.com/Thiagojm/RngKitCLI/issues"
+Documentation = "https://github.com/Thiagojm/RngKitCLI#readme"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
