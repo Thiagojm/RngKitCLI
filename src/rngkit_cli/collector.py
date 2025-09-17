@@ -27,7 +27,7 @@ except ImportError:
     fn_service = None
     storage_service = None
 
-from .utils import ensure_data_dir, validate_params, print_progress, format_duration
+from .utils import ensure_data_dir, validate_params, format_duration
 
 
 class DataCollector:
@@ -176,11 +176,9 @@ class DataCollector:
                             
                             self.samples_collected += 1
                             
-                            # Print progress
-                            if self.verbose:
-                                print(f"Sample {self.samples_collected}: {ones_count} ones")
-                            elif self.samples_collected % 10 == 0:
-                                print_progress(self.samples_collected, self.samples_collected + 1, "Collecting")
+                            # Print detailed sample information
+                            readable_time = datetime.now().strftime("%H:%M:%S")
+                            print(f"Row {self.samples_collected:4d} | Time: {readable_time} | Ones: {ones_count:4d}")
                         
                         last_sample_time = current_time
                         

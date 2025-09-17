@@ -129,7 +129,6 @@ dmypy.json
 .pyre/
 
 # RngKit specific
-data/
 *.bin
 *.csv
 *.xlsx

@@ -104,8 +104,13 @@ class DataAnalyzer:
             else:
                 excel_path = self._write_excel_fallback(df, output_file, bits, interval)
             
+            # Always show success status
+            print(f"✅ Analysis completed successfully!")
+            print(f"📊 Generated Excel report: {excel_path}")
+            print(f"📈 Analyzed {len(df)} samples with {bits}-bit blocks")
+            
             if self.verbose:
-                print(f"Analysis completed: {excel_path}")
+                print(f"📁 Full path: {os.path.abspath(excel_path)}")
             
             return excel_path
             
@@ -163,8 +168,16 @@ class DataAnalyzer:
             else:
                 concat_path = self._concat_csv_fallback(files, output_file)
             
+            # Always show success status
+            print(f"✅ Concatenation completed successfully!")
+            print(f"📄 Generated combined CSV: {concat_path}")
+            print(f"🔗 Combined {len(files)} files with {bits}-bit samples")
+            
             if self.verbose:
-                print(f"Concatenation completed: {concat_path}")
+                print(f"📁 Full path: {os.path.abspath(concat_path)}")
+                print(f"📊 Input files processed:")
+                for i, file_path in enumerate(files, 1):
+                    print(f"   {i}. {os.path.basename(file_path)}")
             
             return concat_path
             
