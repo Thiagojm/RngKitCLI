@@ -9,7 +9,7 @@ import os
 import sys
 import time
 import signal
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 from bitstring import BitArray
 
@@ -86,15 +86,24 @@ class DataCollector:
         # Generate output filename
         if output_file is None:
             device_suffix = "bitb" if device == "bitbabbler" else "trng" if device == "truerng" else "pseudo"
+            bitb_folds = folds if device == "bitbabbler" else None
             if fn_service:
-                output_file = fn_service.format_capture_name(
-                    device_suffix, bits, int(interval), folds if device == "bitbabbler" else None
+                output_file = fn_service.get_unique_capture_name(
+                    device_suffix, bits, int(interval), bitb_folds, self.data_dir
                 )
             else:
-                timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
-                output_file = f"{timestamp}_{device_suffix}_s{bits}_i{int(interval)}"
-                if device == "bitbabbler":
-                    output_file += f"_f{folds}"
+                # Fallback: generate unique filename
+                dt = datetime.now()
+                while True:
+                    ts = dt.strftime("%Y%m%dT%H%M%S")
+                    candidate = f"{ts}_{device_suffix}_s{bits}_i{int(interval)}"
+                    if device == "bitbabbler":
+                        candidate += f"_f{folds}"
+                    full_path = os.path.join(self.data_dir, f"{candidate}.bin")
+                    if not os.path.exists(full_path):
+                        output_file = candidate
+                        break
+                    dt += timedelta(seconds=1)
         
         # Set up file paths
         bin_path = os.path.join(self.data_dir, f"{output_file}.bin")
@@ -126,7 +135,7 @@ class DataCollector:
             self.collecting = False
             if self.samples_collected > 0:
                 elapsed = time.time() - self.start_time
-                print(f"\nCollection completed!")
+                print("\nCollection completed!")
                 print(f"Samples collected: {self.samples_collected}")
                 print(f"Total time: {format_duration(elapsed)}")
                 print(f"Average rate: {self.samples_collected / elapsed:.2f} samples/second")
